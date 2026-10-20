@@ -1,0 +1,62 @@
+const lizardProducts = [
+  {
+    id: 'lizard-terrarium',
+    name: 'Vista Glass Terrarium',
+    description: 'A clear view into their little world. Front-opening doors, a mesh top, and room to arrange a habitat of your own.',
+    details: '60 × 45 × 45 cm',
+    price: 129.00,
+    product_type: 'Habitats',
+    illustration: 'terrarium',
+  },
+  {
+    id: 'lizard-lamp',
+    name: 'Sunspot Basking Dome',
+    description: 'A matte charcoal reflector dome with a ceramic socket and an adjustable clamp for positioning above a basking area.',
+    details: '14 cm dome · bulb sold separately',
+    price: 32.00,
+    product_type: 'Heating & lighting',
+    illustration: 'lamp',
+  },
+  {
+    id: 'lizard-hide',
+    name: 'Sandstone Hideaway',
+    description: 'A quiet corner for a little retreat. This textured resin hide has a rounded entrance and a removable base for easy cleaning.',
+    details: '22 × 16 × 12 cm',
+    price: 24.50,
+    product_type: 'Habitat decor',
+    illustration: 'hide',
+  },
+  {
+    id: 'lizard-branch',
+    name: 'Cork Climbing Branch',
+    description: 'Bring a woodland feel to the enclosure with a natural cork branch. Each piece has its own twists, texture, and character.',
+    details: 'Approx. 35 cm · natural shapes vary',
+    price: 18.00,
+    product_type: 'Habitat decor',
+    illustration: 'branch',
+  },
+  {
+    id: 'lizard-bowl',
+    name: 'Pebble Water Dish',
+    description: 'A low-profile stone-look dish with a smooth glazed interior. Easy to lift out, rinse, and refill as part of your daily routine.',
+    details: '14 × 11 × 3 cm',
+    price: 12.00,
+    product_type: 'Feeding accessories',
+    illustration: 'bowl',
+  },
+  {
+    id: 'lizard-monitor',
+    name: 'Habitat Climate Monitor',
+    description: 'Keep temperature and humidity readings in view with a compact digital display, wired probe, and a simple mounting bracket.',
+    details: 'Temperature + humidity · battery included',
+    price: 21.50,
+    product_type: 'Heating & lighting',
+    illustration: 'monitor',
+  },
+].map(product => ({
+  ...product,
+  animal_type: 'Lizard',
+  image: `/images/lizards/${product.illustration}.svg`,
+}));
+
+export default lizardProducts;

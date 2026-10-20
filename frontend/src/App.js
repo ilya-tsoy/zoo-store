@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import './Lizards.css';
+import lizardProducts from './lizardProducts';
+import LizardIntro from './LizardIntro';
 
 const productImages = {
   'Dog Food': 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZG9nJTIwZm9vZHxlbnwwfHwwfHx8MA%3D%3D',
@@ -19,7 +22,8 @@ const productImages = {
 };
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const isLizardPage = window.location.pathname.replace(/\/$/, '') === '/lizards';
+  const [products, setProducts] = useState(isLizardPage ? lizardProducts : []);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -32,8 +36,8 @@ function App() {
   const [isProductTypeFilterOpen, setIsProductTypeFilterOpen] = useState(true);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!isLizardPage) fetchProducts();
+  }, [isLizardPage]);
 
   useEffect(() => {
     const updateFilterOptions = () => {
@@ -119,35 +123,43 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className={`App${isLizardPage ? ' lizard-page' : ''}`}>
       <header className="header">
         <nav>
           <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
+            <li><a href="/lizards" aria-current={isLizardPage ? 'page' : undefined}>Lizard supplies</a></li>
           </ul>
         </nav>
-        <div className="cart-icon" onClick={() => setIsCartOpen(true)}>
+        <button type="button" className="cart-icon" aria-label={`Open cart (${totalCartItems} items)`} onClick={() => setIsCartOpen(true)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
           {totalCartItems > 0 && <span className="cart-count">{totalCartItems}</span>}
-        </div>
+        </button>
       </header>
       
-      <main className="main-content">
+      {isLizardPage && (
+        <div className="lizard-welcome">
+          <nav className="lizard-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>Lizard supplies</span></nav>
+          <LizardIntro />
+        </div>
+      )}
+      <main className="main-content" id={isLizardPage ? 'lizard-products' : undefined}>
         <aside className="filters-sidebar">
           <h2>Filters</h2>
           <input
             type="text"
+            aria-label="Search products"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <div className="filter-section">
+          {!isLizardPage && <div className="filter-section">
             <h3 onClick={() => setIsAnimalFilterOpen(!isAnimalFilterOpen)}>
               Animal Type {isAnimalFilterOpen ? '▼' : '▶'}
             </h3>
@@ -167,11 +179,11 @@ function App() {
                 ))}
               </ul>
             )}
-          </div>
+          </div>}
           <div className="filter-section">
-            <h3 onClick={() => setIsProductTypeFilterOpen(!isProductTypeFilterOpen)}>
+            <h3><button type="button" className="filter-toggle" aria-expanded={isProductTypeFilterOpen} onClick={() => setIsProductTypeFilterOpen(!isProductTypeFilterOpen)}>
               Product Type {isProductTypeFilterOpen ? '▼' : '▶'}
-            </h3>
+            </button></h3>
             {isProductTypeFilterOpen && (
               <ul>
                 {productTypes.map(type => (
@@ -192,28 +204,37 @@ function App() {
         </aside>
 
         <section className="product-grid">
-          <h1>New Arrivals</h1>
+          {isLizardPage ? (
+            <div className="lizard-catalog-heading">
+              <div><p className="lizard-eyebrow">Their world, well equipped</p><h2>Lizard supplies</h2></div>
+              <span aria-live="polite">{filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}</span>
+            </div>
+          ) : <h1>New Arrivals</h1>}
           <div className="product-list">
             {filteredProducts.length === 0 ? (
-              <p>No products available.</p>
+              <div className="empty-products"><p>{isLizardPage ? 'No supplies match your search. Try another word or clear your filters.' : 'No products available.'}</p>
+                {isLizardPage && <button className="lizard-reset" onClick={() => { setSearchTerm(''); setProductTypeFilters([]); }}>Clear filters</button>}
+              </div>
             ) : (
               filteredProducts.map((product) => (
                 <div key={product.id} className="product-card">
                   <div className="image-container">
-                    <img src={getImageUrl(product.name)} alt={product.name} className="product-image" />
+                    <img src={product.image || getImageUrl(product.name)} alt={product.name} className="product-image" />
                   </div>
                   <div className="product-info">
+                    {isLizardPage && <p className="lizard-product-type">{product.product_type}</p>}
                     <h3>{product.name}</h3>
+                    {isLizardPage && <><p className="lizard-description">{product.description}</p><p className="lizard-details">{product.details}</p></>}
                     <p className="price">${parseFloat(product.price).toFixed(2)}</p>
                     {cartItems[product.id] ? (
                       <div className="cart-controls">
-                        <button onClick={() => updateCart(product.id, -1)} className="quantity-btn">
+                        <button aria-label={`Remove one ${product.name}`} onClick={() => updateCart(product.id, -1)} className="quantity-btn">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                           </svg>
                         </button>
                         <span className="quantity">{cartItems[product.id]}</span>
-                        <button onClick={() => updateCart(product.id, 1)} className="quantity-btn">
+                        <button aria-label={`Add one ${product.name}`} onClick={() => updateCart(product.id, 1)} className="quantity-btn">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -221,7 +242,7 @@ function App() {
                         </button>
                       </div>
                     ) : (
-                      <button onClick={() => updateCart(product.id, 1)} className="add-to-cart-btn">
+                      <button aria-label={`Add ${product.name} to cart`} onClick={() => updateCart(product.id, 1)} className="add-to-cart-btn">
                         Add to Cart
                       </button>
                     )}
@@ -232,12 +253,13 @@ function App() {
           </div>
         </section>
       </main>
+      {isLizardPage && <footer className="lizard-footer"><strong>Every lizard has its own way of living.</strong><p>Choose enclosure dimensions, heating, and lighting to suit your species and setup. Check product measurements before you build their world.</p><a href="/products">Explore all pet supplies <span aria-hidden="true">→</span></a></footer>}
 
       {isCartOpen && (
         <div className="cart-overlay" onClick={() => setIsCartOpen(false)}>
           <div className="cart-drawer" onClick={e => e.stopPropagation()}>
             <h2>Your Cart</h2>
-            <button className="close-cart" onClick={() => setIsCartOpen(false)}>×</button>
+            <button className="close-cart" aria-label="Close cart" onClick={() => setIsCartOpen(false)}>×</button>
             {Object.keys(cartItems).length === 0 ? (
               <p>Your cart is empty</p>
             ) : (
