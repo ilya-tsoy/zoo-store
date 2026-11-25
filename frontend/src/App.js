@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -123,7 +123,7 @@ function App() {
       <header className="header">
         <nav>
           <ul>
-            <li><a href="/">Home</a></li>
+            <li><a href="/store">Home</a></li>
             <li><a href="/products">Products</a></li>
           </ul>
         </nav>

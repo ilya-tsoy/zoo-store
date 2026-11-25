@@ -1,10 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
+import Minesweeper from './Minesweeper';
+import './index.css';
 
-ReactDOM.render(
+const path = window.location.pathname.replace(/\/$/, '');
+const showGame = path === '' || path === '/minesweeper';
+
+document.title = showGame ? 'Minesweeper' : 'Zoo Store';
+
+createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    {showGame ? <Minesweeper /> : <App />}
+  </React.StrictMode>
 );
